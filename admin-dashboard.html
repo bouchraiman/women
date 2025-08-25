@@ -1,0 +1,60 @@
+<script>
+    // دالة تحميل وعرض المقالات
+    async function loadArticles() {
+        const articles = await loadFromJSON();
+        displayArticles(articles);
+    }
+    
+    // دالة حفظ المقالات
+    async function saveArticle(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        const articles = await loadFromJSON();
+        
+        const newArticle = {
+            id: Date.now().toString(),
+            title: formData.get('title'),
+            content: formData.get('content'),
+            date: new Date().toLocaleDateString('ar-EG'),
+            category: formData.get('category'),
+            image_color: formData.get('image_color'),
+            image: '' // سيتم إضافة رفع الصور لاحقاً
+        };
+        
+        articles.unshift(newArticle);
+        await saveToJSON(articles);
+        event.target.reset();
+        loadArticles();
+    }
+    
+    // دوال مساعدة للتعامل مع JSON
+    async function loadFromJSON() {
+        try {
+            const response = await fetch('articles.json');
+            return await response.json();
+        } catch {
+            return [];
+        }
+    }
+    
+    async function saveToJSON(data) {
+        // هنا سيتم حفظ البيانات (حالياً في localStorage للمثال)
+        localStorage.setItem('articles', JSON.stringify(data));
+    }
+    </script>
+
+
+<script>
+    // دالة محاكاة JSON من localStorage
+    async function loadArticlesFromStorage() {
+        const stored = localStorage.getItem('articles');
+        return stored ? JSON.parse(stored) : [];
+    }
+    
+    // في الصفحات التي تحتاج المقالات:
+    async function loadArticles() {
+        const articles = await loadArticlesFromStorage();
+        // ... عرض المقالات
+    }
+    </script>
